@@ -1,0 +1,46 @@
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  splits:
+    train: 0.7
+    val: 0.15
+    test: 0.15
+  seed: 42
+
+model:
+  type: xgboost  # Options: xgboost, mlp
+
+  xgboost:
+    n_estimators: 500
+    max_depth: 6
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    objective: reg:squarederror
+    eval_metric: rmse
+    early_stopping_rounds: 20
+
+  mlp:
+    hidden_dims: [256, 128, 64]
+    activation: relu
+    dropout: 0.2
+    batch_norm: true
+
+training:
+  epochs: 100
+  batch_size: 512
+  optimizer: adam
+  lr: 1.0e-3
+  scheduler:
+    type: cosine
+    eta_min: 1.0e-6
+  device: cpu  # Options: cpu, cuda, mps
+
+logging:
+  use_wandb: false
+  project: pet-doi-ml
+  entity: null
+
+output:
+  results_dir: results
+  save_model: true
