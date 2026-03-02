@@ -161,6 +161,50 @@ def test_steering_channel_excluded():
     assert np.all(feats[:, e_anode_idx] == pytest.approx(100.0))
 
 
+# ---------------------------------------------------------------------------
+# Vectorized shaping numerical equivalence
+# ---------------------------------------------------------------------------
+
+
+def test_vectorized_shaping_matches_scipy():
+    """Vectorized FFT shaping must match scipy fftconvolve row-by-row to 1e-10."""
+    from scipy import signal as sp_signal
+
+    emulator = _default_emulator()
+    rng = np.random.default_rng(42)
+    wf = rng.standard_normal((3, 16, SAMPLES_PER_WAVEFORM))
+
+    shaped_vec = emulator._shape_waveforms(wf)
+
+    n_events = wf.shape[0]
+    flat = wf.reshape(n_events * 16, SAMPLES_PER_WAVEFORM)
+    ref_flat = np.apply_along_axis(
+        lambda row: sp_signal.fftconvolve(row, emulator._kernel, mode="same"),
+        axis=1,
+        arr=flat,
+    )
+    ref = ref_flat.reshape(n_events, 16, SAMPLES_PER_WAVEFORM)
+
+    assert np.allclose(shaped_vec, ref, atol=1e-10)
+
+
+def test_quantize_scale_uses_per_event_max():
+    """Per-event max 99th pct gives signal-level scale for mixed noise+signal chunk."""
+    emulator = _default_emulator()
+    rng = np.random.default_rng(0)
+    n_noise = 170
+    n_signal = 30  # 15% signal events — mirrors first-chunk observation
+    noise = rng.uniform(0.0, 5.0, (n_noise, 16))
+    signal = rng.uniform(100.0, 300.0, (n_signal, 16))
+    peaks = np.vstack([noise, signal])
+    rng.shuffle(peaks)  # interleave
+    emulator._quantize(peaks)
+    # With old code: scale ≈ 5  (noise-level flat 99th pct over 200×16 values)
+    # With new code: scale > 50 (per-event max 99th pct reaches signal region)
+    assert emulator._adc_scale is not None
+    assert emulator._adc_scale > 50
+
+
 def test_car_high_depth():
     """Higher cathode relative to anode → higher CAR (deeper interaction)."""
     adc_shallow = np.zeros((1, 16), dtype=np.uint16)

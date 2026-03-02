@@ -252,6 +252,21 @@ The 10% leading-edge threshold (`trigger_threshold_fraction = 0.10`) is a softwa
 
 Per-strip gain variation of 1.06×–4.83× is documented in the CZT detector characterization data. Phase 1 does **not** apply gain correction — all channels are treated as having identical gain. This will broaden feature distributions and may weaken the CAR-DOI correlation compared to a gain-corrected analysis. Gain correction is planned for Phase 2.
 
+### Scan Geometry Requirement
+
+V4, V5, and V6 require the motor to scan along the **crystal depth axis** — that is, the beam must enter through the crystal edge with a 0.5 mm slit defining the interaction depth layer, and the motor must move perpendicular to the cathode face across the ~10 mm crystal thickness.
+
+A **lateral scan** (motor parallel to anode strips) produces ρ ≈ 0 for all three DOI physics checks. This is physically correct behaviour, not a bug: CAR is a depth indicator and carries no information about lateral position. All three checks will fail together whenever `y = step_index × 8 mm` represents lateral position rather than depth.
+
+Signs that a dataset is a lateral scan:
+- Total motor range >> 10 mm (e.g., 41 steps × 8 mm = 320 mm spans ~40 crystal modules laterally)
+- Filename contains `Parallel_to_anode` or similar
+- V4/V5/V6 all fail simultaneously while V1/V2 pass
+
+Expected depth-scan setup: beam perpendicular to cathode face, motor range ≈ 0–10 mm per crystal, filename would contain `Perpendicular_to_anode` or similar. When V4/V5/V6 all fail, the validation script prints a diagnostic note and records a `scan_geometry_note` field in `validation_report.json`.
+
+The ADC scale fix (per-event max 99th percentile) remains valuable for any scan type; it improves feature quality regardless of the correlation outcome.
+
 ### Waveform Model Mismatch
 
 The CAEN digitizer acquires at 62.5 MHz for 2001 samples (32 µs window). The RENA-3 in the Stanford system may use different timing parameters. Any difference in pre-trigger window length or total acquisition window affects baseline subtraction and therefore all downstream amplitudes.

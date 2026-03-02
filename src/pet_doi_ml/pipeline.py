@@ -280,6 +280,17 @@ def run_scientific_validation(
     metrics["spearman_eap_doi"] = float(rho_ea)
     metrics["charge_trapping_pass"] = ct_pass
 
+    # ── Scan-geometry diagnostic ─────────────────────────────────────────────
+    if not car_pass and not monotone and not ct_pass:
+        geo_note = (
+            "V4/V5/V6 all failed. Likely cause: motor scans LATERALLY "
+            "(parallel to anode strips) rather than along crystal depth. "
+            "y = step_index × 8 mm is lateral position, not DOI. "
+            "These checks require a depth-scanning dataset."
+        )
+        metrics["scan_geometry_note"] = geo_note
+        print(f"\n  NOTE: {geo_note}")
+
     # ── Write JSON report ────────────────────────────────────────────────────
     report_path = reports_dir / "validation_report.json"
     report_path.write_text(json.dumps(metrics, indent=2) + "\n")
