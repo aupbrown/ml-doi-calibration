@@ -43,6 +43,7 @@ logging:
 
 output:
   results_dir: results
+  validation_dir: results/validation
   processed_dir: data/processed
   save_model: true
 

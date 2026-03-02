@@ -135,6 +135,57 @@ class Rena3Emulator:
         scaled = peaks / self._adc_scale * RENA3_ADC_MAX
         return np.clip(np.round(scaled), 0, RENA3_ADC_MAX).astype(np.uint16)
 
+    def debug_process_chunk(
+        self,
+        waveforms_int16: NDArray[np.int16],
+        n_events: int = 4,
+    ) -> dict[str, NDArray]:
+        """Return intermediate emulation stages for visualization.
+
+        Does NOT call _quantize, so ADC scale is never fitted or modified.
+        Safe to call at any point without side effects.
+
+        Args:
+            waveforms_int16: Shape (N, 16, 2001), raw int16 ADC samples.
+            n_events: Number of events to process (takes the first min(n, N)).
+
+        Returns:
+            Dict with keys:
+                ``kernel``      — 1-D RC-CR kernel array (float64)
+                ``raw_f64``     — (n, 16, 2001) baseline-subtracted float64
+                ``shaped``      — (n, 16, 2001) RC-CR shaped float64
+                ``peaks``       — (n, 16) float64 peak amplitudes (un-quantized)
+                ``trigger_idx`` — (n, 16) int sample index of leading-edge trigger
+        """
+        n = min(n_events, waveforms_int16.shape[0])
+        wf = waveforms_int16[:n].astype(np.float64)
+        raw_f64 = self._subtract_baseline(wf)
+        shaped = self._shape_waveforms(raw_f64)
+
+        # Recover trigger indices (mirrors _extract_peaks logic, no quantization)
+        cfg = self._config
+        abs_s = np.abs(shaped)
+        post_trigger_max = abs_s[:, :, PRE_TRIGGER_SAMPLES:].max(axis=2)
+        thresh = cfg.trigger_threshold_fraction * post_trigger_max[:, :, np.newaxis]
+        above = abs_s[:, :, cfg.trigger_skip_samples:] >= thresh
+        trigger_rel = np.argmax(above, axis=2)
+        triggered_any = above.any(axis=2)
+        trigger_idx = np.where(
+            triggered_any,
+            trigger_rel + cfg.trigger_skip_samples,
+            SAMPLES_PER_WAVEFORM,
+        ).astype(np.int64)
+
+        peaks = self._extract_peaks(shaped)
+
+        return {
+            "kernel": self._kernel,
+            "raw_f64": raw_f64,
+            "shaped": shaped,
+            "peaks": peaks,
+            "trigger_idx": trigger_idx,
+        }
+
     def process_chunk(
         self, waveforms_int16: NDArray[np.int16]
     ) -> NDArray[np.uint16]:

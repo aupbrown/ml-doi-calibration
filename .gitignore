@@ -32,11 +32,12 @@ checkpoints/
 # Weights & Biases
 wandb/
 
-# Data and results (track folder skeleton only)
+# Data and results (track folder skeleton only; preserve .gitkeep at any depth)
 data/*
 !data/.gitkeep
-results/*
-!results/.gitkeep
+results/**
+!results/**/
+!results/**/.gitkeep
 
 # OS / editor
 .DS_Store
