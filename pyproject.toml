@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "ruff", "mypy", "jupyter"]
+dev = ["pytest", "pytest-cov", "ruff", "mypy", "types-PyYAML", "jupyter"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -38,6 +38,10 @@ target-version = "py311"
 select = ["E", "W", "F", "I", "B"]
 
 [tool.mypy]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "yaml"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

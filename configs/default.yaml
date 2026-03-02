@@ -43,4 +43,16 @@ logging:
 
 output:
   results_dir: results
+  processed_dir: data/processed
   save_model: true
+
+ingest:
+  data_dir: data/CZT_0.5mmSlit_CS137_thr_1150_A16-22_C1-8_B-600V_S-80V_scan_4min_duration_8mm_step_41steps_L_2000_T-A21_Steering_chan_3_Parallel_to_anode_motor_1_centered
+  chunk_size: 500
+  step_indices: null  # null = process all 41 motor-position files
+
+emulation:
+  trigger_threshold_fraction: 0.10  # fraction of shaped peak used for leading-edge trigger
+  trigger_skip_samples: 10          # samples at waveform start skipped before trigger search
+  peak_search_window_samples: 50    # samples after trigger to search for peak amplitude
+  adc_scale: null                   # null = auto-fit from 99th percentile of first chunk

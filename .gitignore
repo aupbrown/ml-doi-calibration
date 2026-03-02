@@ -51,3 +51,9 @@ htmlcov/
 
 # Ruff
 .ruff_cache/
+
+# Processed numpy arrays (large pipeline outputs)
+*.npy
+
+# Local experiment configs with machine-specific paths
+configs/local_*.yaml

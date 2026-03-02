@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "pet-doi-ml: Machine Learning for Depth-of-Interaction Calibration in PET Imaging"
+version: 0.1.0
+date-released: "2026-03-02"
+url: "https://github.com/aupbrown/ml-doi-calibration"
+license: MIT
+authors:
+  - family-names: Brown
+    given-names: Austin
+    affiliation: "Radiation Imaging Laboratory, University of Arizona"
+keywords:
+  - PET
+  - depth-of-interaction
+  - DOI
+  - CZT
+  - RENA-3
+  - machine learning
+  - medical imaging
+  - nuclear instrumentation
+abstract: >
+  A pipeline for training machine learning models to estimate Depth-of-Interaction (DOI)
+  in CZT-based PET detectors. Features are extracted from raw CAEN digitizer waveforms
+  by emulating the RENA-3 ASIC signal processing chain (RC-CR pulse shaping, leading-edge
+  trigger, peak amplitude extraction), enabling models trained on Arizona collimator-scan
+  data to be deployed on Stanford RENA-3 PET systems without retraining.
+preferred-citation:
+  type: software
+  title: "pet-doi-ml: Machine Learning for Depth-of-Interaction Calibration in PET Imaging"
+  authors:
+    - family-names: Brown
+      given-names: Austin
+  year: 2026
+  url: "https://github.com/aupbrown/ml-doi-calibration"
+  notes: >
+    Experimental data collected at the University of Arizona Radiation Imaging Laboratory.
+    Reference acquisition scripts and detector characterization provided by Max Teicheira
+    (University of Arizona). RENA-3 emulation motivated by Yi Gu's CZT PET system
+    at Stanford University.
