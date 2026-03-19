@@ -179,7 +179,8 @@ If you use this code in your research, please cite:
 
 ## Acknowledgments
 
-- **Max Teicheira** (University of Arizona) — experimental data acquisition, detector
+- **Max Teicheira** (University of California, Santa Cruz
+  ) — experimental data acquisition, detector
   characterization scripts, and CZT methods reference documentation
 - **Yi Gu** (Stanford University) — motivation for RENA-3 ASIC emulation approach
 - University of Arizona Radiation Imaging Laboratory
